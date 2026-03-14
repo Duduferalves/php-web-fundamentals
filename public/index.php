@@ -1,45 +1,65 @@
 <?php
 /**
- * FRONT CONTROLLER & ROTEADOR
- * Arquivo: public/index.php
+ * FRONT CONTROLLER - ARQUITETURA LIMPA
  */
 
-// 1. NAVEGAÇÃO DE DIRETÓRIO Segura
-// dirname(__DIR__) sobe um nível. Sai de 'public/' e vai para a raiz do projeto.
-// Depois, concatenamos com '/src' para acessar o diretório de regras de negócio.
 $pasta_src = dirname(__DIR__) . '/src';
-
-// 2. ROTEADOR BÁSICO (Lógica de execução de exercícios)
-// Verifica se a URL enviou um parâmetro 'arquivo' (ex: ?arquivo=lista-01-fundamentos/exercicio1.php)
 $arquivo_solicitado = $_GET['arquivo'] ?? null;
 
+// 1. ROTEAMENTO SEGURO
 if ($arquivo_solicitado) {
-    // SEGURANÇA CRÍTICA: Prevenção de Path Traversal (LFI - Local File Inclusion)
-    // realpath() resolve o caminho absoluto e retorna false se o arquivo não existir ou for malicioso (ex: ../../../etc/passwd)
     $caminho_absoluto = realpath($pasta_src . '/' . $arquivo_solicitado);
-
-    // Valida se o arquivo existe E se ele realmente está dentro da pasta 'src'
     if ($caminho_absoluto && strpos($caminho_absoluto, realpath($pasta_src)) === 0) {
-        // Importa e executa o código do exercício
         require_once $caminho_absoluto;
-        exit; // Encerra o script para não carregar o HTML do índice abaixo
-    } else {
-        http_response_code(404);
-        die("<h3>Erro 404: Arquivo não encontrado ou acesso negado pela política de segurança.</h3>");
+        exit;
     }
 }
 
-// 3. LÓGICA DE LISTAGEM (Caso nenhuma rota seja chamada)
-$modulos = [];
+// 2. CONSTRUÇÃO DA ÁRVORE (Lógica de Negócio)
+$arvore = [];
 if (is_dir($pasta_src)) {
-    $conteudo = scandir($pasta_src);
-    foreach ($conteudo as $item) {
-        // Filtra apenas diretórios reais dentro de src (ignora arquivos soltos e ponteiros ./..)
-        if ($item !== '.' && $item !== '..' && is_dir($pasta_src . '/' . $item)) {
-            $modulos[] = $item;
+    $directory = new RecursiveDirectoryIterator($pasta_src, RecursiveDirectoryIterator::SKIP_DOTS);
+    $iterator = new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::SELF_FIRST);
+    
+    foreach ($iterator as $info) {
+        if ($info->isFile() && $info->getExtension() === 'php' && !str_starts_with($info->getFilename(), 'view-')) {
+            $caminho_relativo = str_replace($pasta_src . DIRECTORY_SEPARATOR, '', $info->getPathname());
+            $partes = explode(DIRECTORY_SEPARATOR, $caminho_relativo);
+            
+            $temp = &$arvore;
+            foreach ($partes as $parte) {
+                if (!isset($temp[$parte])) $temp[$parte] = [];
+                $temp = &$temp[$parte];
+            }
+            $temp['__path__'] = $caminho_relativo;
         }
     }
-    sort($modulos);
+}
+
+// 3. RENDERIZAÇÃO (View Helper)
+function renderizarArvore($dados) {
+    ksort($dados);
+    foreach ($dados as $nome => $filhos) {
+        if ($nome === '__path__') continue;
+        
+        $id_unico = "f-" . substr(md5($nome . rand()), 0, 8);
+        $is_file = isset($filhos['__path__']);
+
+        if ($is_file): ?>
+            <div class='item file'>
+                <a href='?arquivo=<?= urlencode($filhos['__path__']) ?>'>📄 <?= htmlspecialchars($nome) ?></a>
+            </div>
+        <?php else: ?>
+            <div class='folder-container'>
+                <div class='item folder' onclick="toggleFolder('<?= $id_unico ?>')">
+                    📁 <?= htmlspecialchars($nome) ?> <span class='arrow'>▶</span>
+                </div>
+                <div id='<?= $id_unico ?>' class='submenu' style='display:none;'>
+                    <?php renderizarArvore($filhos); ?>
+                </div>
+            </div>
+        <?php endif;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -47,25 +67,25 @@ if (is_dir($pasta_src)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ambiente de Desenvolvimento - Exercícios</title>
-    
+    <title>Explorador de Exercícios PHP</title>
     <link rel="stylesheet" href="css/global.css?v=<?= time() ?>">
 </head>
 <body>
     <div class="container">
-        <h1>Módulos de Estudo (Diretório src/)</h1>
-        
-        <?php if (empty($modulos)): ?>
-            <p>Nenhum módulo encontrado na pasta 'src'.</p>
-        <?php else: ?>
-            <ul>
-                <?php foreach ($modulos as $modulo): ?>
-                    <li>
-                        <strong><?= htmlspecialchars($modulo, ENT_QUOTES, 'UTF-8') ?></strong>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
+        <h1>Dashboard de Estudos</h1>
+        <div class="tree-root">
+            <?php renderizarArvore($arvore); ?>
+        </div>
     </div>
+
+    <script>
+        function toggleFolder(id) {
+            const el = document.getElementById(id);
+            const header = el.previousElementSibling;
+            const isHidden = el.style.display === 'none';
+            el.style.display = isHidden ? 'block' : 'none';
+            header.classList.toggle('active', isHidden);
+        }
+    </script>
 </body>
 </html>
