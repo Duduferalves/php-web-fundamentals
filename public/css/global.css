@@ -1,0 +1,43 @@
+/* Reset básico */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f7f6;
+  color: #333;
+  line-height: 1.6;
+  padding: 2rem;
+}
+h1,
+h2 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+/* Componente de Card para os exercícios */
+.card {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  max-width: 600px;
+  margin: 0 auto 2rem auto;
+  border-top: 4px solid #3498db;
+}
+.data-row {
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+.label {
+  font-weight: bold;
+  color: #555;
+  display: inline-block;
+  width: 120px;
+}
+.value {
+  color: #222;
+}
