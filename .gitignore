@@ -1,0 +1,10 @@
+# Pastas de IDE
+.vscode/
+.idea/
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
