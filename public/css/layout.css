@@ -1,0 +1,65 @@
+/* --- Layout Principal --- */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--white);
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+h1 {
+  color: var(--secondary-color);
+  border-bottom: 3px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+/* --- Explorador de Arquivos --- */
+.tree-root {
+  border-top: 1px solid var(--border-color);
+}
+.item {
+  padding: 12px 15px;
+  margin: 5px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+.folder {
+  background: #f8f9fa;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+}
+.folder:hover {
+  background: #e9ecef;
+}
+.file {
+  background: #fff;
+  border: 1px solid transparent;
+}
+.file:hover {
+  background: #f1fdfc;
+  border-color: var(--primary-color);
+}
+.file a {
+  text-decoration: none;
+  color: var(--primary-color);
+  width: 100%;
+  display: block;
+}
+.arrow {
+  font-size: 0.7em;
+  transition: transform 0.3s ease;
+}
+.active .arrow {
+  transform: rotate(90deg);
+}
+.submenu {
+  border-left: 2px solid var(--primary-color);
+  margin-left: 15px;
+  padding-left: 10px;
+}
