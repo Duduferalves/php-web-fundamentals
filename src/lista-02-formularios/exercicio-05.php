@@ -6,13 +6,25 @@ declare(strict_types=1);
  * Responsabilidade: Processar cadastro simples e classificar maioridade em lote.
  */
 
-// 1. ALOCAÇÃO DE MEMÓRIA
+// 0. INICIALIZAÇÃO DA SESSÃO PARA PERSISTÊNCIA
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Lógica para limpar a lista se o usuário desejar
+if (isset($_GET['limpar'])) {
+    $_SESSION['lista_05_usuarios'] = [];
+    header("Location: ?arquivo=lista-02-formularios/exercicio-05.php");
+    exit;
+}
+
+// 1. ALOCAÇÃO DE MEMÓRIA (Recuperamos da sessão ou iniciamos vazio)
 $usuario_cadastrado = null;
-$lista_usuarios = [];
+$lista_usuarios = $_SESSION['lista_05_usuarios'] ?? [];
 $erros = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+
     $nome = trim($_POST['nome'] ?? '');
     $idade = isset($_POST['idade']) ? (int)$_POST['idade'] : null;
 
@@ -34,9 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'classe_css' => ($idade >= 18) ? 'text-primary' : 'text-secondary'
         ];
 
-        // Simulamos a inserção em uma lista (Coleção)
-        // Em um sistema real, aqui você faria o INSERT no Banco de Dados.
-        $lista_usuarios[] = $usuario_cadastrado;
+        // Adicionamos à lista na SESSÃO
+        $_SESSION['lista_05_usuarios'][] = $usuario_cadastrado;
+
+        // Atualizamos a variável local para refletir a sessão atualizada
+        $lista_usuarios = $_SESSION['lista_05_usuarios'];
     }
 }
 

@@ -56,7 +56,7 @@ require_once dirname(__DIR__, 1) . '/templates/header.php';
         </div>
 
         <br>
-        <a href="exercicio-04.php" class="btn-back">Novo Lançamento</a>
+        <a href="" class="btn-back">Novo Lançamento</a>
     </div>
 <?php endif; ?>
 

@@ -17,6 +17,9 @@ require_once dirname(__DIR__, 1) . '/templates/header.php';
 <?php endif; ?>
 
 <form action="" method="GET" class="form-container">
+    <!-- Manter o roteamento do Front Controller -->
+    <input type="hidden" name="arquivo" value="lista-02-formularios/exercicio-02.php">
+
     <div class="form-group">
         <label for="numero" class="form-label">Digite um número inteiro:</label>
         <input type="number" id="numero" name="numero" class="form-input" 
@@ -39,7 +42,7 @@ require_once dirname(__DIR__, 1) . '/templates/header.php';
                 <span class="text-primary"><?= $sinal ?></span>
             </li>
         </ul>
-        <a href="exercicio-02.php" class="btn-back">Limpar Busca</a>
+        <a href="?arquivo=lista-02-formularios/exercicio-02.php" class="btn-back">Limpar Busca</a>
     </div>
 <?php endif; ?>
 

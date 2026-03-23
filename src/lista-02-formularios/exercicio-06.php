@@ -2,16 +2,29 @@
 declare(strict_types=1);
 
 /**
- * CONTROLADOR: exercicio-05-v2.php (Lista 2 - Desafio Extra)
+ * CONTROLADOR: exercicio-06.php (Lista 2 - Desafio Extra)
  * Responsabilidade: Processar cadastro e preparar agregadores de dados.
  */
 
-$lista_usuarios = [];
+// 0. INICIALIZAÇÃO DA SESSÃO PARA PERSISTÊNCIA
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Lógica para limpar a lista
+if (isset($_GET['limpar'])) {
+    $_SESSION['lista_06_usuarios'] = [];
+    header("Location: ?arquivo=lista-02-formularios/exercicio-06.php");
+    exit;
+}
+
+// 1. ALOCAÇÃO DE MEMÓRIA (Recuperamos da sessão)
+$lista_usuarios = $_SESSION['lista_06_usuarios'] ?? [];
 $total_maiores = 0; // Acumulador de Agregação
 $erros = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+
     $nome = trim($_POST['nome'] ?? '');
     $idade = isset($_POST['idade']) ? (int)$_POST['idade'] : null;
 
@@ -27,15 +40,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'is_maior' => ($idade >= 18) 
         ];
 
-        // Adicionamos à lista
-        $lista_usuarios[] = $novo_usuario;
+        // Adicionamos à lista na SESSÃO
+        $_SESSION['lista_06_usuarios'][] = $novo_usuario;
 
-        // Lógica de Contagem (Poderia ser feita aqui ou no foreach da View)
-        foreach ($lista_usuarios as $user) {
-            if ($user['is_maior']) {
-                $total_maiores++;
-            }
-        }
+        // Atualizamos a lista local
+        $lista_usuarios = $_SESSION['lista_06_usuarios'];
+    }
+}
+
+// Lógica de Contagem de Agregação (Calculada sobre a lista persistida)
+foreach ($lista_usuarios as $user) {
+    if ($user['is_maior']) {
+        $total_maiores++;
     }
 }
 
